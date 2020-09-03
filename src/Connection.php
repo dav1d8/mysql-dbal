@@ -20,15 +20,13 @@ class Connection extends DBALConnection implements DriverConnection
      *
      * @return int The number of affected rows.
      */
-    public function insert($tableExpression, array $data, array $types = [])
+    public function batchInsert($tableExpression, array $data, array $types = [])
     {
         if (empty($data)) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
 
-        return $this->isArrayMultidimensional($data) ?
-               $this->insertMultiple($tableExpression, $data, $types) :
-               parent::insert($tableExpression, $data, $types);
+        return $this->insertMultiple($tableExpression, $data, $types);
     }
 
     /**

@@ -1,5 +1,5 @@
 {
-    "name": "pharako/mysql-dbal",
+    "name": "dav1d8/mysql-dbal",
     "description": "MySQL extensions for Doctrine DBAL",
     "keywords": [
         "doctrine", "dbal", "mysql", "upsert", "insert", "multiple"
