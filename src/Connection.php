@@ -17,16 +17,17 @@ class Connection extends DBALConnection implements DriverConnection
      * @param array  $data              An associative array (multidimensional, if insertion involves multiple records)
      * containing column-value pairs.
      * @param array  $types             Types of the inserted data.
+     * @param bool   $ignore            Whether ignore duplications
      *
      * @return int The number of affected rows.
      */
-    public function batchInsert($tableExpression, array $data, array $types = [])
+    public function batchInsert($tableExpression, array $data, array $types = [], bool $ignoreDuplications = false)
     {
         if (empty($data)) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
 
-        return $this->insertMultiple($tableExpression, $data, $types);
+        return $this->insertMultiple($tableExpression, $data, $types, $ignoreDuplications);
     }
 
     /**
@@ -59,10 +60,11 @@ class Connection extends DBALConnection implements DriverConnection
      * @param string $tableExpression   The expression of the table to insert data into, quoted or unquoted.
      * @param array  $data              A multidimensional array containing subarrays of column-value pairs.
      * @param array  $types             Types of the inserted data.
+     * @param bool   $ignore            Whether ignore duplications
      *
      * @return int The number of affected rows.
      */
-    protected function insertMultiple($tableExpression, array $data, array $types = [])
+    protected function insertMultiple($tableExpression, array $data, array $types = [], bool $ignoreDuplications = false)
     {
         $values = [];
         $params = [];
@@ -73,7 +75,11 @@ class Connection extends DBALConnection implements DriverConnection
         }
 
         $first = reset($data);
-        $sql = 'INSERT INTO ' . $tableExpression . ' (' . implode(', ', array_keys($first)) . ') VALUES '
+        $sql = 'INSERT INTO ';
+        if ($ignoreDuplications) {
+            $sql = 'INSERT IGNORE INTO ';
+        }
+        $sql .= $tableExpression . ' (' . implode(', ', array_keys($first)) . ') VALUES '
                . implode(', ', $values);
 
         $types = is_string(key($types)) ? $this->extractTypeValues($first, $types) : $types;
